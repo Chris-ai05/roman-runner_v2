@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Via Romana — Endloslauf durchs antike Rom</title>
+  <meta name="description" content="Ein 3D-Endless-Runner im antiken Rom. Springe, rutsche, sammle Denare und weiche Streitwagen aus!" />
+  <meta name="theme-color" content="#2b1c12" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
+  <!-- Schriften: Cinzel (Trajan-artige Inschrift) + Crimson Text (Fließtext) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Importmap-Polyfill für ältere Browser (z. B. iOS < 16.4) -->
+  <script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="game" aria-label="Spielfeld"></canvas>
+
+  <!-- Gestenfläche für Touch (unter der UI, über dem Canvas) -->
+  <div id="touch-layer" aria-hidden="true"></div>
+
+  <div id="ui">
+    <!-- Vignette / Treffer- und Gold-Blitz -->
+    <div id="vignette" aria-hidden="true"></div>
+
+    <!-- Schwebende Punkte-Popups -->
+    <div id="popups" aria-hidden="true"></div>
+
+    <!-- ====================== HUD ====================== -->
+    <div id="hud" class="layer">
+      <div class="hud-left">
+        <div class="hud-label">Punkte</div>
+        <div class="hud-score-row">
+          <span id="hud-score">0</span><span id="hud-mult" class="mult"></span>
+        </div>
+        <div class="speedbar" title="Tempo"><div id="hud-speed-fill"></div></div>
+      </div>
+      <div class="hud-right">
+        <div class="hud-coin-row"><span class="coin-dot" aria-hidden="true"></span><span id="hud-coins">0</span></div>
+        <div class="hud-best-row">Beste&nbsp;<span id="hud-best">0</span></div>
+      </div>
+      <div id="chips" aria-label="Aktive Power-ups"></div>
+    </div>
+
+    <!-- Meilenstein-Banner & Warn-Toast & Hinweis -->
+    <div id="banner" aria-live="polite">
+      <div id="banner-title">D</div>
+      <div id="banner-sub">500 Meter</div>
+    </div>
+    <div id="toast" aria-live="polite"></div>
+    <div id="hint" aria-live="polite"></div>
+
+    <!-- Ton-Knopf (immer sichtbar) -->
+    <button id="btn-mute" class="icon-btn" type="button" aria-pressed="false" title="Ton ausschalten">🔊</button>
+
+    <!-- ====================== STARTMENÜ ====================== -->
+    <section id="screen-menu" class="screen layer">
+      <div class="tablet">
+        <div class="laurel" aria-hidden="true">
+          <svg viewBox="0 0 120 44"><path d="M12 38 C 28 36, 44 26, 56 8 M16 34 c 6 1 10 -1 12 -5 m -4 12 c 6 0 10 -3 11 -7 m -2 13 c 5 -1 9 -4 10 -8 M108 38 C 92 36, 76 26, 64 8 m 40 26 c -6 1 -10 -1 -12 -5 m 4 12 c -6 0 -10 -3 -11 -7 m 2 13 c -5 -1 -9 -4 -10 -8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </div>
+        <p class="eyebrow">Anno DCCLIII a.u.c.</p>
+        <h1 class="title">VIA&nbsp;ROMANA</h1>
+        <p class="subtitle">Ein Endloslauf durch das ewige Rom</p>
+
+        <div class="stats-row">
+          <div class="stat"><span class="stat-label">Bestleistung</span><span id="menu-best" class="stat-value">0</span></div>
+          <div class="stat"><span class="stat-label">Denare gesamt</span><span id="menu-coins" class="stat-value coin-text">0</span></div>
+        </div>
+
+        <button id="btn-start" class="btn btn-primary" type="button">Lauf beginnen</button>
+
+        <div id="help-keys" class="help">
+          <div class="help-row"><kbd>←</kbd><kbd>→</kbd><span>Spur wechseln</span></div>
+          <div class="help-row"><kbd>↑</kbd><kbd>Leertaste</kbd><span>Springen</span></div>
+          <div class="help-row"><kbd>↓</kbd><span>Rutschen / Sturzflug</span></div>
+          <div class="help-row"><kbd>P</kbd><span>Pause</span></div>
+        </div>
+        <div id="help-touch" class="help">
+          <div class="help-row"><span class="gesture">◀ ▶</span><span>Wischen: Spur wechseln</span></div>
+          <div class="help-row"><span class="gesture">▲ / Tipp</span><span>Springen</span></div>
+          <div class="help-row"><span class="gesture">▼</span><span>Rutschen</span></div>
+        </div>
+
+        <div class="legend">
+          <span class="legend-item l-shield">Schild</span>
+          <span class="legend-item l-magnet">Magnet</span>
+          <span class="legend-item l-boost">Sandalen</span>
+          <span class="legend-item l-laurel">Lorbeer&nbsp;×II</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== PAUSE ====================== -->
+    <section id="screen-pause" class="screen layer">
+      <div class="tablet small">
+        <h2 class="title-2">PAUSA</h2>
+        <p class="subtitle">Auch Legionäre rasten.</p>
+        <button id="btn-resume" class="btn btn-primary" type="button">Weiterlaufen</button>
+        <button id="btn-pause-menu" class="btn btn-ghost" type="button">Zum Menü</button>
+      </div>
+    </section>
+
+    <!-- ====================== GAME OVER ====================== -->
+    <section id="screen-over" class="screen layer">
+      <div id="confetti" aria-hidden="true"></div>
+      <div class="tablet">
+        <h2 class="title-2">GESTÜRZT!</h2>
+        <div id="over-record" class="record">Neuer Rekord — AVE!</div>
+
+        <div class="stats-row big">
+          <div class="stat"><span class="stat-label">Punkte</span><span id="over-score" class="stat-value">0</span></div>
+          <div class="stat"><span class="stat-label">Denare</span><span id="over-coins" class="stat-value coin-text">0</span></div>
+          <div class="stat"><span class="stat-label">Beste</span><span id="over-best" class="stat-value">0</span></div>
+        </div>
+
+        <button id="btn-retry" class="btn btn-primary" type="button">Noch ein Lauf</button>
+        <button id="btn-menu" class="btn btn-ghost" type="button">Zum Menü</button>
+
+        <p id="over-tip" class="tip"></p>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
