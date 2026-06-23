@@ -37,19 +37,26 @@ export class UI {
       toast: $('toast'), hint: $('hint'),
       popups: $('popups'), vignette: $('vignette'),
       menuBest: $('menu-best'), menuCoins: $('menu-coins'),
-      keysHelp: $('help-keys'), touchHelp: $('help-touch'),
+      controlsKeys: $('controls-keys'), controlsTouch: $('controls-touch'),
       overScore: $('over-score'), overCoins: $('over-coins'), overBest: $('over-best'),
       overRecord: $('over-record'), overTip: $('over-tip'),
       confetti: $('confetti'),
       mute: $('btn-mute'),
     };
 
-    $('btn-start').addEventListener('click', () => cb.start());
+    // Mehrere „Lauf beginnen"-Knöpfe auf der Startseite (Hero + finaler CTA)
+    document.querySelectorAll('.js-start').forEach((b) => b.addEventListener('click', () => cb.start()));
     $('btn-retry').addEventListener('click', () => cb.retry());
     $('btn-menu').addEventListener('click', () => cb.menu());
     $('btn-resume').addEventListener('click', () => cb.resume());
     $('btn-pause-menu').addEventListener('click', () => cb.menu());
     this.el.mute.addEventListener('click', () => this.setMuted(cb.toggleMute()));
+
+    // „Die Welt erkunden" scrollt sanft zum ersten Inhaltsabschnitt
+    const explore = $('btn-explore');
+    if (explore) explore.addEventListener('click', () => {
+      document.getElementById('welt')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
 
     this.chipEls = new Map();
     this._cache = {};
@@ -64,9 +71,10 @@ export class UI {
   showMenu({ best, totalCoins, muted, isTouch }) {
     this.el.menuBest.textContent = fmt(best);
     this.el.menuCoins.textContent = fmt(totalCoins);
-    this.el.keysHelp.style.display = isTouch ? 'none' : '';
-    this.el.touchHelp.style.display = isTouch ? '' : 'none';
+    if (this.el.controlsKeys) this.el.controlsKeys.style.display = isTouch ? 'none' : '';
+    if (this.el.controlsTouch) this.el.controlsTouch.style.display = isTouch ? '' : 'none';
     this.setMuted(muted);
+    this.el.menu.scrollTop = 0; // Startseite immer oben am Hero beginnen
     this._show(this.el.menu, true);
     this._show(this.el.over, false);
     this._show(this.el.pause, false);

@@ -66,11 +66,12 @@ Fast alles Gameplay-Tuning liegt in **`js/config.js`**: Tempo, Schwerkraft, Spru
 
 ```
 via-romana/
-├── index.html          Einstieg, UI-Struktur, Importmap
+├── index.html          Einstieg, Startseite (Landing) + UI-Struktur, Importmap
 ├── favicon.svg
-├── css/style.css       Komplettes Styling (Tabula-Design)
+├── css/style.css       Komplettes Styling (Tabula-Design + Startseite)
 └── js/
     ├── main.js         Spielzustände, Loop, Kamera, Punkte, Power-up-Logik
+    ├── landing.js      Startseite: prozedurale Hero-Szene & Reveal-Fallback
     ├── config.js       Alle Stellschrauben + Helfer
     ├── world.js        Himmel, Licht, Straße, Deko, Triumphbögen
     ├── player.js       Legionär: Modell, Animationen, Physik, Hitbox

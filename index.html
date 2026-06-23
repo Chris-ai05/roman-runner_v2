@@ -11,7 +11,7 @@
   <!-- Schriften: Cinzel (Trajan-artige Inschrift) + Crimson Text (Fließtext) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="css/style.css" />
 
@@ -65,41 +65,186 @@
     <!-- Ton-Knopf (immer sichtbar) -->
     <button id="btn-mute" class="icon-btn" type="button" aria-pressed="false" title="Ton ausschalten">🔊</button>
 
-    <!-- ====================== STARTMENÜ ====================== -->
+    <!-- ====================== STARTSEITE (Landing) ====================== -->
     <section id="screen-menu" class="screen layer">
-      <div class="tablet">
-        <div class="laurel" aria-hidden="true">
-          <svg viewBox="0 0 120 44"><path d="M12 38 C 28 36, 44 26, 56 8 M16 34 c 6 1 10 -1 12 -5 m -4 12 c 6 0 10 -3 11 -7 m -2 13 c 5 -1 9 -4 10 -8 M108 38 C 92 36, 76 26, 64 8 m 40 26 c -6 1 -10 -1 -12 -5 m 4 12 c -6 0 -10 -3 -11 -7 m 2 13 c -5 -1 -9 -4 -10 -8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-        </div>
-        <p class="eyebrow">Anno DCCLIII a.u.c.</p>
-        <h1 class="title">VIA&nbsp;ROMANA</h1>
-        <p class="subtitle">Ein Endloslauf durch das ewige Rom</p>
+      <div class="lp">
 
-        <div class="stats-row">
-          <div class="stat"><span class="stat-label">Bestleistung</span><span id="menu-best" class="stat-value">0</span></div>
-          <div class="stat"><span class="stat-label">Denare gesamt</span><span id="menu-coins" class="stat-value coin-text">0</span></div>
-        </div>
+        <!-- ---------------------- HERO ---------------------- -->
+        <header class="lp-hero">
+          <div class="lp-hero-scene" id="hero-scene" aria-hidden="true"></div>
+          <div class="lp-hero-wash" aria-hidden="true"></div>
 
-        <button id="btn-start" class="btn btn-primary" type="button">Lauf beginnen</button>
+          <div class="lp-hero-content">
+            <div class="lp-laurel lp-laurel-hero" aria-hidden="true">
+              <svg viewBox="0 0 130 46" width="130" height="46"><path d="M14 40 C 30 38, 46 28, 58 9 M18 36 c 6 1 10 -1 12 -5 m -4 13 c 6 0 10 -3 11 -7 m -2 14 c 5 -1 9 -4 10 -8 M116 40 C 100 38, 84 28, 72 9 m 42 27 c -6 1 -10 -1 -12 -5 m 4 13 c -6 0 -10 -3 -11 -7 m 2 14 c -5 -1 -9 -4 -10 -8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="65" cy="8" r="3.2" fill="currentColor"/></svg>
+            </div>
+            <p class="lp-eyebrow">Anno DCCLIII a.u.c. · S·P·Q·R</p>
+            <h1 class="lp-title">VIA&nbsp;ROMANA</h1>
+            <p class="lp-lede">Ein Endloslauf durch das ewige Rom — renne, springe, rutsche und sammle Denare im goldenen Abendlicht.</p>
 
-        <div id="help-keys" class="help">
-          <div class="help-row"><kbd>←</kbd><kbd>→</kbd><span>Spur wechseln</span></div>
-          <div class="help-row"><kbd>↑</kbd><kbd>Leertaste</kbd><span>Springen</span></div>
-          <div class="help-row"><kbd>↓</kbd><span>Rutschen / Sturzflug</span></div>
-          <div class="help-row"><kbd>P</kbd><span>Pause</span></div>
-        </div>
-        <div id="help-touch" class="help">
-          <div class="help-row"><span class="gesture">◀ ▶</span><span>Wischen: Spur wechseln</span></div>
-          <div class="help-row"><span class="gesture">▲ / Tipp</span><span>Springen</span></div>
-          <div class="help-row"><span class="gesture">▼</span><span>Rutschen</span></div>
-        </div>
+            <div class="lp-cta-row">
+              <button type="button" class="lp-btn lp-btn-primary js-start">Lauf beginnen</button>
+              <button type="button" id="btn-explore" class="lp-btn lp-btn-ghost">Die Welt erkunden</button>
+            </div>
 
-        <div class="legend">
-          <span class="legend-item l-shield">Schild</span>
-          <span class="legend-item l-magnet">Magnet</span>
-          <span class="legend-item l-boost">Sandalen</span>
-          <span class="legend-item l-laurel">Lorbeer&nbsp;×II</span>
-        </div>
+            <div class="lp-hero-stats">
+              <div class="lp-hstat"><span class="lp-hstat-label">Bestleistung</span><span id="menu-best" class="lp-hstat-value">0</span></div>
+              <span class="lp-hstat-sep" aria-hidden="true"></span>
+              <div class="lp-hstat"><span class="lp-hstat-label">Denare gesamt</span><span id="menu-coins" class="lp-hstat-value coin-text">0</span></div>
+            </div>
+          </div>
+
+          <div class="lp-scrollcue" aria-hidden="true">scrollen ▾</div>
+        </header>
+
+        <!-- ---------------------- INTRO / WELT ---------------------- -->
+        <section id="welt" class="lp-section lp-section-intro">
+          <div class="lp-reveal">
+            <p class="lp-kicker">Mundus · Die Welt</p>
+            <h2 class="lp-h2">Eine endlose Via durch das antike Rom</h2>
+            <p class="lp-intro">Kolonnaden, Tempel und Aquädukte ziehen vorbei, während du als Legionär über das Kopfsteinpflaster jagst. Eine komplett prozedurale 3D-Welt — kein einziges externes Bild, alles aus Code geschmiedet, direkt im Browser.</p>
+          </div>
+          <div class="lp-grid lp-grid-tiles">
+            <div class="lp-reveal lp-tile">
+              <div class="lp-tile-lat">Columnae</div>
+              <div class="lp-tile-name">Kolonnaden</div>
+              <p class="lp-tile-desc">Marmorsäulen, Tempelfassaden und mächtige Aquädukte säumen jede Etappe deiner Flucht.</p>
+            </div>
+            <div class="lp-reveal lp-tile">
+              <div class="lp-tile-lat">Forum</div>
+              <div class="lp-tile-name">Markt &amp; Statuen</div>
+              <p class="lp-tile-desc">Marktstände, Reiterstatuen und Zypressen geben dem Forum Romanum Leben.</p>
+            </div>
+            <div class="lp-reveal lp-tile">
+              <div class="lp-tile-lat">Vesper</div>
+              <div class="lp-tile-name">Goldenes Abendlicht</div>
+              <p class="lp-tile-desc">Flackernde Feuerschalen und ein warmer Dämmerhimmel tauchen die Stadt in Bronze.</p>
+            </div>
+            <div class="lp-reveal lp-tile">
+              <div class="lp-tile-lat">Sine Fine</div>
+              <div class="lp-tile-name">Endlos &amp; prozedural</div>
+              <p class="lp-tile-desc">Tempo, Dichte und Komplexität wachsen mit der Distanz — doch jeder Pfad bleibt überlebbar.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------------------- POWER-UPS ---------------------- -->
+        <section class="lp-section">
+          <div class="lp-reveal">
+            <p class="lp-kicker">Munera Deorum · Gaben der Götter</p>
+            <h2 class="lp-h2">Vier Power-ups</h2>
+          </div>
+          <div class="lp-grid lp-grid-power">
+            <div class="lp-reveal lp-power">
+              <div class="lp-orb lp-orb-shield"></div>
+              <div class="lp-power-name">Schild der Legion</div>
+              <p class="lp-power-desc">Verzeiht genau einen Treffer und zerschmettert das Hindernis.</p>
+            </div>
+            <div class="lp-reveal lp-power">
+              <div class="lp-orb lp-orb-magnet"></div>
+              <div class="lp-power-name">Magnet-Amulett</div>
+              <p class="lp-power-desc">Zieht 8 Sekunden lang alle Denare im Umkreis zu dir heran.</p>
+            </div>
+            <div class="lp-reveal lp-power">
+              <div class="lp-orb lp-orb-boost"></div>
+              <div class="lp-power-name">Merkurs Sandalen</div>
+              <p class="lp-power-desc">Tempo-Boost und unverwundbar — renn einfach durch alles hindurch.</p>
+            </div>
+            <div class="lp-reveal lp-power">
+              <div class="lp-orb lp-orb-laurel"></div>
+              <div class="lp-power-name">Lorbeer des Ruhms</div>
+              <p class="lp-power-desc">Verdoppelt 10 Sekunden lang alle Punkte — ×II für jeden Schritt.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------------------- MECHANIKEN ---------------------- -->
+        <section class="lp-band lp-band-mech">
+          <div class="lp-band-inner">
+            <div class="lp-reveal">
+              <p class="lp-kicker">Ludus · Das Spiel</p>
+              <h2 class="lp-h2">Renne, springe, weiche aus</h2>
+            </div>
+            <div class="lp-grid lp-grid-mech">
+              <div class="lp-reveal lp-mech">
+                <div class="lp-mech-num">I</div>
+                <div class="lp-mech-name">Springen</div>
+                <p class="lp-mech-desc">Setze über gestürzte Säulen und Barrikaden hinweg.</p>
+              </div>
+              <div class="lp-reveal lp-mech">
+                <div class="lp-mech-num">II</div>
+                <div class="lp-mech-name">Rutschen</div>
+                <p class="lp-mech-desc">Gleite unter Torbalken hindurch — in der Luft „runter“ für den Sturzflug.</p>
+              </div>
+              <div class="lp-reveal lp-mech">
+                <div class="lp-mech-num">III</div>
+                <div class="lp-mech-name">Spur wechseln</div>
+                <p class="lp-mech-desc">Drei Spuren: weiche nach links oder rechts den Hindernissen aus.</p>
+              </div>
+              <div class="lp-reveal lp-mech">
+                <div class="lp-mech-num">IV</div>
+                <div class="lp-mech-name">Streitwagen</div>
+                <p class="lp-mech-desc">Ab mittlerer Schwierigkeit donnern dir Streitwagen entgegen — mit Hornsignal als Warnung.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------------------- MEILENSTEINE ---------------------- -->
+        <section class="lp-section lp-section-mile">
+          <div class="lp-reveal">
+            <p class="lp-kicker">Lapides Milliarii · Meilensteine</p>
+            <h2 class="lp-h2">Alle 500 Meter ein Triumph</h2>
+            <p class="lp-intro">Durchschreite SPQR-Triumphbögen, höre die Fanfare und sieh deine Distanz in römischen Ziffern aufleuchten — mit Bonuspunkten für jeden Meilenstein.</p>
+          </div>
+          <div class="lp-miles">
+            <div class="lp-reveal"><div class="lp-mile-r">D</div><div class="lp-mile-m">500 m</div></div>
+            <div class="lp-reveal"><div class="lp-mile-r">M</div><div class="lp-mile-m">1000 m</div></div>
+            <div class="lp-reveal"><div class="lp-mile-r">MD</div><div class="lp-mile-m">1500 m</div></div>
+            <div class="lp-reveal"><div class="lp-mile-r">MM</div><div class="lp-mile-m">2000 m</div></div>
+          </div>
+        </section>
+
+        <!-- ---------------------- STEUERUNG ---------------------- -->
+        <section class="lp-band lp-band-controls">
+          <div class="lp-band-inner">
+            <div class="lp-reveal">
+              <p class="lp-kicker">Imperium · Steuerung</p>
+              <h2 class="lp-h2">Befehlige den Legionär</h2>
+            </div>
+            <div class="lp-reveal lp-grid lp-grid-ctrl" id="controls-keys">
+              <div class="lp-ctrl"><div class="lp-keys"><span class="lp-key">←</span><span class="lp-key">→</span></div><div class="lp-ctrl-act">Spur wechseln</div></div>
+              <div class="lp-ctrl"><div class="lp-keys"><span class="lp-key">↑</span><span class="lp-key">Leer</span></div><div class="lp-ctrl-act">Springen</div></div>
+              <div class="lp-ctrl"><div class="lp-keys"><span class="lp-key">↓</span></div><div class="lp-ctrl-act">Rutschen / Sturzflug</div></div>
+              <div class="lp-ctrl"><div class="lp-keys"><span class="lp-key">P</span><span class="lp-key">Esc</span></div><div class="lp-ctrl-act">Pause</div></div>
+            </div>
+            <div class="lp-grid lp-grid-ctrl" id="controls-touch" style="display:none;">
+              <div class="lp-ctrl"><div class="lp-keys"><span class="lp-key">◀ ▶</span></div><div class="lp-ctrl-act">Wischen: Spur wechseln</div></div>
+              <div class="lp-ctrl"><div class="lp-keys"><span class="lp-key">▲ / Tipp</span></div><div class="lp-ctrl-act">Springen</div></div>
+              <div class="lp-ctrl"><div class="lp-keys"><span class="lp-key">▼</span></div><div class="lp-ctrl-act">Rutschen / Sturzflug</div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------------------- FINALER CTA ---------------------- -->
+        <section class="lp-cta">
+          <div class="lp-cta-glow" aria-hidden="true"></div>
+          <div class="lp-reveal lp-cta-inner">
+            <div class="lp-laurel lp-laurel-cta" aria-hidden="true">
+              <svg viewBox="0 0 130 46" width="130" height="46"><path d="M14 40 C 30 38, 46 28, 58 9 M18 36 c 6 1 10 -1 12 -5 m -4 13 c 6 0 10 -3 11 -7 m -2 14 c 5 -1 9 -4 10 -8 M116 40 C 100 38, 84 28, 72 9 m 42 27 c -6 1 -10 -1 -12 -5 m 4 13 c -6 0 -10 -3 -11 -7 m 2 14 c -5 -1 -9 -4 -10 -8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="65" cy="8" r="3.2" fill="currentColor"/></svg>
+            </div>
+            <h2 class="lp-ave">AVE!</h2>
+            <p class="lp-cta-lede">Die Via wartet. Wirst du bis zur Ewigen Stadt durchhalten?</p>
+            <button type="button" class="lp-btn lp-btn-primary lp-btn-cta js-start">Lauf beginnen</button>
+          </div>
+        </section>
+
+        <!-- ---------------------- FOOTER ---------------------- -->
+        <footer class="lp-footer">
+          <div class="lp-spqr">S · P · Q · R</div>
+          <p class="lp-footer-text">VIA ROMANA · Ein 3D-Endless-Runner mit Three.js · MIT-Lizenz · Anno DCCLIII a.u.c.</p>
+        </footer>
+
       </div>
     </section>
 
@@ -134,6 +279,8 @@
     </section>
   </div>
 
+  <!-- Startseite (dekorativ, unabhängig vom Spiel) zuerst -->
+  <script type="module" src="js/landing.js"></script>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>
