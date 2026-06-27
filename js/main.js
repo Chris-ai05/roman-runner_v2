@@ -14,6 +14,7 @@ import { Obstacles } from './obstacles.js';
 import { Collectibles } from './collectibles.js';
 import { Director } from './director.js';
 import { UI, POWER_LABELS } from './ui.js';
+import { SKINS, DEFAULT_SKIN, getSkin } from './skins.js';
 
 const TIPS = [
   'Unter Torbalken mit rotem Banner musst du rutschen.',
@@ -49,7 +50,14 @@ class Game {
     this.audio = new AudioManager();
     this.effects = new Effects(this.scene);
     this.world = new World(this.scene);
-    this.player = new Player(this.scene, this.effects);
+    // Skins: Besitz & Auswahl aus dem Speicher (überlebt das Schließen der Seite)
+    this.ownedSkins = store.get('vr_owned', [DEFAULT_SKIN]);
+    if (!this.ownedSkins.includes(DEFAULT_SKIN)) this.ownedSkins.push(DEFAULT_SKIN);
+    this.skin = store.get('vr_skin', DEFAULT_SKIN);
+    if (!this.ownedSkins.includes(this.skin)) this.skin = DEFAULT_SKIN;
+    this.preview = this.skin;
+
+    this.player = new Player(this.scene, this.effects, this.skin);
     this.obstacles = new Obstacles(this.scene);
     this.coins = new Collectibles(this.scene);
     this.director = new Director(this.obstacles, this.coins, {
@@ -65,15 +73,27 @@ class Game {
       menu: () => { this.audio.play('click'); this.toMenu(); },
       resume: () => { this.audio.play('click'); this.resume(); },
       toggleMute: () => this.audio.toggle(),
+      openSkins: () => { this.audio.play('click'); this.toSkins(); },
+      closeSkins: () => { this.audio.play('click'); this.fromSkins(); },
+      previewSkin: (id) => this.previewSkin(id),
+      buySkin: (id) => this.buySkin(id),
+      equipSkin: (id) => this.equipSkin(id),
     });
 
     this.input = new InputManager(document.getElementById('touch-layer'), {
       any: () => this.audio.unlock(),
-      left: () => { if (this.state === 'running') this.player.left(); },
-      right: () => { if (this.state === 'running') this.player.right(); },
+      left: () => {
+        if (this.state === 'running') this.player.left();
+        else if (this.state === 'skins') this.cyclePreview(-1);
+      },
+      right: () => {
+        if (this.state === 'running') this.player.right();
+        else if (this.state === 'skins') this.cyclePreview(1);
+      },
       jump: () => {
         if (this.state === 'running') { if (this.player.jump()) this.audio.play('jump'); }
         else if (this.state === 'menu') this.startRun();
+        else if (this.state === 'skins') this.buySkin(this.preview);
       },
       slide: () => {
         if (this.state === 'running') { if (this.player.slide()) this.audio.play('slide'); }
@@ -81,6 +101,7 @@ class Game {
       pause: () => {
         if (this.state === 'running') this.pause();
         else if (this.state === 'paused') this.resume();
+        else if (this.state === 'skins') this.fromSkins();
       },
     });
 
@@ -149,7 +170,90 @@ class Game {
     });
   }
 
+  // ============ Charaktermenü / Shop ============
+  toSkins() {
+    this.resetRun();
+    this.state = 'skins';
+    this.preview = this.skin;
+    if (this.player.skinId !== this.skin) this.player.setSkin(this.skin);
+    this.menuAngle = 0.6;
+    this.ui.showSkins(this._skinsState());
+  }
+
+  fromSkins() {
+    // Nur betrachteten Skin verwerfen, ausgerüsteten wiederherstellen
+    if (this.player.skinId !== this.skin) this.player.setSkin(this.skin);
+    this.preview = this.skin;
+    this.toMenu();
+  }
+
+  _skinsState() {
+    return {
+      skins: SKINS.map((s) => ({ id: s.id, name: s.name, desc: s.desc, price: s.price })),
+      owned: this.ownedSkins,
+      equipped: this.skin,
+      preview: this.preview,
+      coins: this.totalCoins,
+    };
+  }
+
+  /** Skin in der 3D-Vorschau zeigen (ohne ihn auszurüsten). */
+  previewSkin(id) {
+    if (this.state !== 'skins' || !getSkin(id)) return;
+    if (this.preview !== id) {
+      this.preview = id;
+      this.audio.play('click');
+      if (this.player.skinId !== id) this.player.setSkin(id);
+      this.ui.renderSkins(this._skinsState());
+    }
+  }
+
+  cyclePreview(dir) {
+    const ids = SKINS.map((s) => s.id);
+    let idx = ids.indexOf(this.preview);
+    idx = (idx + dir + ids.length) % ids.length;
+    this.previewSkin(ids[idx]);
+  }
+
+  /** Besessenen Skin ausrüsten (persistiert). */
+  equipSkin(id) {
+    if (!this.ownedSkins.includes(id)) return;
+    this.skin = id;
+    this.preview = id;
+    store.set('vr_skin', id);
+    if (this.player.skinId !== id) this.player.setSkin(id);
+    this.audio.play('power');
+    if (this.state === 'skins') this.ui.renderSkins(this._skinsState());
+  }
+
+  /** Skin kaufen (zieht Münzen ab) – oder ausrüsten, falls schon besessen. */
+  buySkin(id) {
+    if (this.ownedSkins.includes(id)) { this.equipSkin(id); return; }
+    const skin = getSkin(id);
+    if (!skin) return;
+    if (this.totalCoins < skin.price) {
+      this.audio.play('click');
+      this.ui.toast('Nicht genug Denare!');
+      return;
+    }
+    this.totalCoins -= skin.price;
+    store.set('vr_total', this.totalCoins);
+    this.ownedSkins.push(id);
+    store.set('vr_owned', this.ownedSkins);
+    this.skin = id;
+    this.preview = id;
+    store.set('vr_skin', id);
+    if (this.player.skinId !== id) this.player.setSkin(id);
+    this.audio.play('record');
+    this.ui.toast(skin.name + ' freigeschaltet!');
+    if (this.state === 'skins') this.ui.renderSkins(this._skinsState());
+  }
+
   startRun() {
+    // Falls im Charaktermenü ein anderer Skin nur betrachtet wurde:
+    // immer mit dem ausgerüsteten Skin starten.
+    if (this.player.skinId !== this.skin) this.player.setSkin(this.skin);
+    this.preview = this.skin;
     this.resetRun();
     this.state = 'running';
     this.ui.showHUD();
@@ -227,6 +331,7 @@ class Game {
   tick(dt) {
     switch (this.state) {
       case 'menu': this.tickMenu(dt); break;
+      case 'skins': this.tickSkins(dt); break;
       case 'running': this.tickRun(dt); break;
       case 'dying': this.tickDying(dt); break;
       case 'over': this.tickOver(dt); break;
@@ -245,6 +350,22 @@ class Game {
     this.camLook.lerp(this._tmpLook.set(0, 1.3, this.playerZ), Math.min(1, 4 * dt));
     this.camera.lookAt(this.camLook);
     this.setFov(58, dt);
+
+    this.player.update(dt, 0, false);
+    this.world.update(dt, this.playerZ, this.camera);
+    this.effects.update(dt);
+  }
+
+  // Charaktermenü: Modell langsam drehen, damit man den Skin von allen Seiten sieht
+  tickSkins(dt) {
+    this.menuAngle += dt * 0.32;
+    const r = 6.6;
+    const cx = Math.sin(this.menuAngle) * r;
+    const cz = this.playerZ + Math.cos(this.menuAngle) * r;
+    this.camera.position.lerp(this._tmpV.set(cx, 3.2, cz), Math.min(1, 4 * dt));
+    this.camLook.lerp(this._tmpLook.set(0, 1.0, this.playerZ), Math.min(1, 4 * dt));
+    this.camera.lookAt(this.camLook);
+    this.setFov(54, dt);
 
     this.player.update(dt, 0, false);
     this.world.update(dt, this.playerZ, this.camera);

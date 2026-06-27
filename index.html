@@ -84,13 +84,14 @@
 
             <div class="lp-cta-row">
               <button type="button" class="lp-btn lp-btn-primary js-start">Lauf beginnen</button>
+              <button type="button" class="lp-btn lp-btn-ghost js-skins">Charaktere</button>
               <button type="button" id="btn-explore" class="lp-btn lp-btn-ghost">Die Welt erkunden</button>
             </div>
 
             <div class="lp-hero-stats">
               <div class="lp-hstat"><span class="lp-hstat-label">Bestleistung</span><span id="menu-best" class="lp-hstat-value">0</span></div>
               <span class="lp-hstat-sep" aria-hidden="true"></span>
-              <div class="lp-hstat"><span class="lp-hstat-label">Denare gesamt</span><span id="menu-coins" class="lp-hstat-value coin-text">0</span></div>
+              <div class="lp-hstat"><span class="lp-hstat-label">Denare</span><span id="menu-coins" class="lp-hstat-value coin-text">0</span></div>
             </div>
           </div>
 
@@ -273,8 +274,31 @@
 
         <button id="btn-retry" class="btn btn-primary" type="button">Noch ein Lauf</button>
         <button id="btn-menu" class="btn btn-ghost" type="button">Zum Menü</button>
+        <button class="btn btn-ghost js-skins" type="button">Charaktere &amp; Shop</button>
 
         <p id="over-tip" class="tip"></p>
+      </div>
+    </section>
+
+    <!-- ====================== CHARAKTERE / SHOP ====================== -->
+    <section id="screen-skins" class="screen layer">
+      <div class="skins-panel">
+        <div class="skins-head">
+          <div>
+            <p class="eyebrow">Armamentarium</p>
+            <h2 class="title-2">Charaktere</h2>
+          </div>
+          <div class="skins-wallet" title="Deine Denare">
+            <span class="coin-dot" aria-hidden="true"></span><span id="skins-coins">0</span>
+          </div>
+        </div>
+
+        <div id="skin-list" class="skin-list"><!-- Karten werden per JS erzeugt --></div>
+
+        <div class="skins-actions">
+          <button id="btn-skins-back" class="btn btn-ghost" type="button">Zurück</button>
+          <button id="btn-skins-start" class="btn btn-primary js-start" type="button">Lauf beginnen</button>
+        </div>
       </div>
     </section>
   </div>

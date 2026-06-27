@@ -829,6 +829,88 @@ kbd {
 @keyframes revUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
 @keyframes laurelIn { from { opacity: 0; transform: translateY(10px) scale(0.9); } to { opacity: 0.92; transform: none; } }
 
+/* ============================================================
+   CHARAKTERE / SHOP
+   Panel am unteren Rand über dem live rotierenden 3D-Modell.
+   ============================================================ */
+#screen-skins {
+  display: block;
+  padding: 0;
+  pointer-events: auto; /* fängt Klicks ab, damit kein Spiel-Input ausgelöst wird */
+}
+.skins-panel {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  pointer-events: auto;
+  max-height: 72dvh;
+  overflow-y: auto;
+  padding: 18px clamp(14px, 4vw, 32px) max(18px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent, rgba(20, 12, 6, 0.72) 18%, var(--bronze-darker) 42%);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -18px 50px rgba(15, 8, 3, 0.5);
+}
+.skins-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 12px; max-width: 760px; margin: 0 auto 14px;
+}
+.skins-head .eyebrow, .skins-head .title-2 { margin: 0; }
+.skins-wallet {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(18px, 4vw, 24px); color: var(--gold-bright);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.skin-list {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  max-width: 760px; margin: 0 auto;
+}
+.skin-card {
+  position: relative;
+  background: rgba(22, 12, 6, 0.62);
+  border: 1px solid rgba(217, 169, 62, 0.32);
+  border-radius: 12px;
+  padding: 14px 12px 12px;
+  text-align: center; cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.skin-card:hover { transform: translateY(-2px); border-color: var(--line); }
+.skin-card.preview {
+  border-color: var(--gold-bright);
+  box-shadow: inset 0 0 0 1px var(--gold-bright), 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+.skin-emblem { width: 56px; height: 56px; margin: 0 auto 8px; color: var(--gold); }
+.skin-emblem svg { width: 100%; height: 100%; display: block; }
+.skin-card.equipped .skin-emblem { color: var(--gold-bright); }
+.skin-card.locked .skin-emblem { color: rgba(241, 231, 210, 0.45); }
+.skin-name { font-family: var(--font-display); font-weight: 700; font-size: 17px; color: #ffe9ad; }
+.skin-desc { font-size: 12.5px; line-height: 1.4; color: rgba(241, 231, 210, 0.7); margin: 4px 0 10px; }
+
+.skin-action { min-height: 34px; display: flex; align-items: center; justify-content: center; }
+.skin-badge { font-family: var(--font-display); font-size: 13px; letter-spacing: 0.08em; color: var(--gold-bright); }
+.skin-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; padding: 9px 10px; border-radius: 7px; cursor: pointer;
+  font-family: var(--font-display); font-weight: 700; font-size: 13px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  transition: filter 0.12s ease, transform 0.12s ease, background 0.12s ease;
+}
+.skin-buy {
+  color: var(--ink);
+  background: linear-gradient(180deg, #ffe19a, var(--gold) 55%, #b6852a);
+  box-shadow: 0 4px 12px rgba(217, 169, 62, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.skin-buy:hover { filter: brightness(1.07); transform: translateY(-1px); }
+.skin-equip { color: var(--gold-bright); background: rgba(217, 169, 62, 0.1); border-color: var(--line); }
+.skin-equip:hover { background: rgba(217, 169, 62, 0.2); }
+.skin-btn[disabled] { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.4); }
+.skin-btn .coin-dot { width: 13px; height: 13px; box-shadow: none; }
+
+.skins-actions { display: flex; gap: 10px; max-width: 760px; margin: 16px auto 0; }
+.skins-actions .btn { margin: 0; width: auto; flex: 1; }
+
 /* ===================== Responsiv & Bewegung ===================== */
 @media (max-width: 560px) {
   .tablet { padding: 24px 18px 20px; }

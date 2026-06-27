@@ -5,130 +5,102 @@
 // ============================================================
 import * as THREE from 'three';
 import { CONFIG, clamp, laneToX, lerp } from './config.js';
+import { SKINS, DEFAULT_SKIN, getSkin } from './skins.js';
 
-const M = {
-  skin:    new THREE.MeshStandardMaterial({ color: 0xc98e5a, roughness: 0.8 }),
-  tunic:   new THREE.MeshStandardMaterial({ color: 0x8e1f2f, roughness: 0.85 }),
-  gold:    new THREE.MeshStandardMaterial({ color: 0xd9a93e, roughness: 0.35, metalness: 0.7 }),
-  bronze:  new THREE.MeshStandardMaterial({ color: 0xa07a3a, roughness: 0.4, metalness: 0.6 }),
-  leather: new THREE.MeshStandardMaterial({ color: 0x6b4a2f, roughness: 0.9 }),
-  plume:   new THREE.MeshStandardMaterial({ color: 0xc0392b, roughness: 0.8 }),
-  cape:    new THREE.MeshStandardMaterial({ color: 0x7a1624, roughness: 0.9, side: THREE.DoubleSide }),
+// Effekt-Meshes (skin-unabhängig): Schild-Aura, Boost-Glühen, Blob-Schatten.
+const FX = {
+  aura: () => new THREE.Mesh(
+    new THREE.TorusGeometry(0.85, 0.05, 8, 32),
+    new THREE.MeshBasicMaterial({ color: 0xffd76a, transparent: true, opacity: 0.85 })
+  ),
+  glow: () => new THREE.Mesh(
+    new THREE.CircleGeometry(0.8, 20),
+    new THREE.MeshBasicMaterial({ color: 0xffc04d, transparent: true, opacity: 0.35, depthWrite: false })
+  ),
+  blob: () => new THREE.Mesh(
+    new THREE.CircleGeometry(0.55, 18),
+    new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.22, depthWrite: false })
+  ),
 };
 
-function box(w, h, d, mat) {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-  m.castShadow = true;
-  return m;
-}
-
 export class Player {
-  constructor(scene, effects) {
+  constructor(scene, effects, skinId) {
     this.effects = effects;
     this.group = new THREE.Group();
     scene.add(this.group);
-    this._build();
+    this.skinId = null;
+    this.cape = null;
+    this._buildSkeleton();
+    this.setSkin(skinId || DEFAULT_SKIN);
     this.reset();
   }
 
-  _build() {
+  // Skelett: bewegte Gruppen + Effekt-Meshes. Die sichtbaren Skin-Teile
+  // hängen in eigenen „Art"-Containern, damit ein Skin-Wechsel nur diese
+  // austauscht und die Animation (auf den Gruppen) unberührt bleibt.
+  _buildSkeleton() {
     const g = this.group;
 
     // Rumpf-Anker (für Lean/Bob), Beine hängen direkt am Root
     this.body = new THREE.Group();
     g.add(this.body);
-
-    // Torso & Tunika
-    const torso = box(0.62, 0.62, 0.36, M.tunic);
-    torso.position.y = 1.18;
-    this.body.add(torso);
-    const belt = box(0.66, 0.12, 0.4, M.gold);
-    belt.position.y = 0.92;
-    this.body.add(belt);
-    const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.42, 0.3, 8), M.leather);
-    skirt.position.y = 0.76; skirt.castShadow = true;
-    this.body.add(skirt);
-
-    // Kopf + Helm mit rotem Kamm
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.21, 12, 10), M.skin);
-    head.position.y = 1.72; head.castShadow = true;
-    this.body.add(head);
-    const helm = new THREE.Mesh(new THREE.SphereGeometry(0.235, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.62), M.bronze);
-    helm.position.y = 1.76; helm.castShadow = true;
-    this.body.add(helm);
-    const crest = box(0.07, 0.16, 0.42, M.plume);
-    crest.position.set(0, 1.97, 0);
-    this.body.add(crest);
+    this.bodyArt = new THREE.Group();
+    this.body.add(this.bodyArt);
 
     // Arme (Pivot an der Schulter)
     this.armL = new THREE.Group(); this.armR = new THREE.Group();
     this.armL.position.set(-0.42, 1.42, 0);
     this.armR.position.set(0.42, 1.42, 0);
-    for (const grp of [this.armL, this.armR]) {
-      const upper = box(0.16, 0.34, 0.16, M.skin); upper.position.y = -0.16;
-      const lower = box(0.14, 0.3, 0.14, M.skin); lower.position.y = -0.46;
-      const cuff = box(0.17, 0.08, 0.17, M.bronze); cuff.position.y = -0.3;
-      grp.add(upper, lower, cuff);
-      this.body.add(grp);
-    }
+    this.body.add(this.armL, this.armR);
+    this.armLArt = new THREE.Group(); this.armL.add(this.armLArt);
+    this.armRArt = new THREE.Group(); this.armR.add(this.armRArt);
 
     // Beine (Pivot an der Hüfte) – am Root, damit Rutschen sauber aussieht
     this.legL = new THREE.Group(); this.legR = new THREE.Group();
     this.legL.position.set(-0.17, 0.72, 0);
     this.legR.position.set(0.17, 0.72, 0);
-    for (const grp of [this.legL, this.legR]) {
-      const thigh = box(0.2, 0.36, 0.2, M.skin); thigh.position.y = -0.18;
-      const shin = box(0.17, 0.34, 0.17, M.bronze); shin.position.y = -0.52; // Beinschienen
-      const foot = box(0.18, 0.1, 0.3, M.leather); foot.position.set(0, -0.7, 0.05);
-      grp.add(thigh, shin, foot);
-      g.add(grp);
-    }
-
-    // Kleiner Rundschild auf dem Rücken + Gladius an der Hüfte (Silhouette!)
-    const parma = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.05, 14), M.leather);
-    parma.rotation.x = Math.PI / 2;
-    parma.position.set(0, 1.25, 0.26);
-    const boss = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 8), M.gold);
-    boss.position.set(0, 1.25, 0.3);
-    this.body.add(parma, boss);
-    const sword = box(0.05, 0.4, 0.08, M.bronze);
-    sword.position.set(0.36, 0.95, 0.1); sword.rotation.z = 0.15;
-    this.body.add(sword);
-
-    // Wehender Umhang
-    this.cape = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.7), M.cape);
-    this.cape.position.set(0, 1.45, 0.22);
-    this.cape.rotation.x = 0.3;
-    this.cape.castShadow = true;
-    this.body.add(this.cape);
+    g.add(this.legL, this.legR);
+    this.legLArt = new THREE.Group(); this.legL.add(this.legLArt);
+    this.legRArt = new THREE.Group(); this.legR.add(this.legRArt);
 
     // Schild-Aura (Power-up) – goldener Ring
-    this.aura = new THREE.Mesh(
-      new THREE.TorusGeometry(0.85, 0.05, 8, 32),
-      new THREE.MeshBasicMaterial({ color: 0xffd76a, transparent: true, opacity: 0.85 })
-    );
+    this.aura = FX.aura();
     this.aura.position.y = 1.0;
     this.aura.visible = false;
     g.add(this.aura);
 
     // Boost-Glühen um die Füße
-    this.glow = new THREE.Mesh(
-      new THREE.CircleGeometry(0.8, 20),
-      new THREE.MeshBasicMaterial({ color: 0xffc04d, transparent: true, opacity: 0.35, depthWrite: false })
-    );
+    this.glow = FX.glow();
     this.glow.rotation.x = -Math.PI / 2;
     this.glow.position.y = 0.03;
     this.glow.visible = false;
     g.add(this.glow);
 
     // Weicher Blob-Schatten als Fallback-Verstärkung
-    this.blob = new THREE.Mesh(
-      new THREE.CircleGeometry(0.55, 18),
-      new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.22, depthWrite: false })
-    );
+    this.blob = FX.blob();
     this.blob.rotation.x = -Math.PI / 2;
     this.blob.position.y = 0.02;
     g.add(this.blob);
+  }
+
+  /** Tauscht das sichtbare Erscheinungsbild (Skin) aus. */
+  setSkin(id) {
+    const skin = getSkin(id) || SKINS[0];
+    this.skinId = skin.id;
+    // Alte Skin-Meshes entfernen und ihre Geometrien freigeben
+    // (Materialien sind in skins.js geteilt und bleiben bestehen).
+    for (const art of [this.bodyArt, this.armLArt, this.armRArt, this.legLArt, this.legRArt]) {
+      for (let i = art.children.length - 1; i >= 0; i--) {
+        const c = art.children[i];
+        art.remove(c);
+        c.traverse((o) => { if (o.isMesh) o.geometry.dispose(); });
+      }
+    }
+    const res = skin.build({
+      body: this.bodyArt, armL: this.armLArt, armR: this.armRArt,
+      legL: this.legLArt, legR: this.legRArt,
+    });
+    this.cape = (res && res.cape) || null;
   }
 
   reset() {
@@ -294,8 +266,8 @@ export class Player {
       this.armR.rotation.x = lerp(this.armR.rotation.x, -0.1, Math.min(1, 6 * dt));
     }
 
-    // Umhang flattert mit dem Tempo
-    this.cape.rotation.x = 0.35 + Math.sin(this.runT * 1.7) * 0.12 + speed * 0.012;
+    // Umhang flattert mit dem Tempo (nur Skins mit Umhang)
+    if (this.cape) this.cape.rotation.x = 0.35 + Math.sin(this.runT * 1.7) * 0.12 + speed * 0.012;
 
     // Aura & Glow leicht pulsieren lassen
     if (this.aura.visible) {

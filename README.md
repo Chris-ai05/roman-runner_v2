@@ -29,7 +29,7 @@ Renne als Legionär über eine endlose römische Straße, springe über gestürz
 - **Steigende Schwierigkeit**: Tempo, Musterdichte und Musterkomplexität wachsen mit der Distanz; jedes Muster hat garantiert einen überlebbaren Pfad.
 - **Meilensteine alle 500 m** mit römischen Ziffern (D, M, MD …), Fanfare, Bonuspunkten und SPQR-Triumphbögen über der Straße.
 - **Klares Feedback**: Near-Miss-Boni („Knapp! +15“), Punkte-Popups, Partikel (Staub, Funken, Trümmer, Goldspur), Screen-Shake, Treffer-Vignette und Zeitlupen-Sturz.
-- **Highscore & Denar-Schatzkammer** werden lokal gespeichert (`localStorage`).
+- **Shop & Charaktere:** Sammle Denare und schalte neue Skins frei – z. B. den **Gladiator** (Murmillo) für 300 Denare. Im Charaktermenü wählst du deinen Läufer; das Modell dreht sich live in 3D. Highscore, Denare, Besitz und ausgewählter Skin werden lokal gespeichert (`localStorage`).
 - **Sound komplett synthetisiert** (WebAudio): Münzen, Sprünge, Crash, Fanfaren und eine dezente generative „Lyra“-Hintergrundmusik — per 🔊-Knopf abschaltbar.
 - **Mobil-optimiert**: Touch-Gesten, Safe-Areas, gedeckelte Pixel-Ratio und adaptive Qualität (Schatten werden bei schwacher Hardware automatisch reduziert).
 
@@ -74,7 +74,8 @@ via-romana/
     ├── landing.js      Startseite: prozedurale Hero-Szene & Reveal-Fallback
     ├── config.js       Alle Stellschrauben + Helfer
     ├── world.js        Himmel, Licht, Straße, Deko, Triumphbögen
-    ├── player.js       Legionär: Modell, Animationen, Physik, Hitbox
+    ├── player.js       Läufer: Skelett, Animationen, Physik, Hitbox, Skin-Wechsel
+    ├── skins.js        Skins (Legionär, Gladiator) – austauschbares Aussehen
     ├── obstacles.js    Hindernistypen, Kollision, Near-Miss, Streitwagen
     ├── collectibles.js Denare & Power-ups (inkl. Magnet-Anziehung)
     ├── director.js     Musterwahl, Schwierigkeit, Event-Taktung

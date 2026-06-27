@@ -11,6 +11,13 @@ const ICONS = {
   laurel: '<svg viewBox="0 0 24 24"><path d="M12 21C7 19 4 15 4 9c2 0 4 1 5 3-2-3-2-6 0-9 2 3 2 6 0 9 1-2 3-3 5-3 0 0 0 0 0 0 2 0 4 1 5 3 0 0 0 0 0 0 0 6-3 8-7 9z" fill="none"/><path d="M12 21c-5-2-8-6-8-12 4 1 6 4 6 8M12 21c5-2 8-6 8-12-4 1-6 4-6 8M12 3v18" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>',
 };
 
+// 2D-Embleme für die Skin-Karten (currentColor -> per Zustand eingefärbt)
+const SKIN_EMBLEMS = {
+  legionary: '<svg viewBox="0 0 64 64" fill="currentColor" aria-hidden="true"><path d="M32 3c-7 3-10 8-11 14 6-2 10-6 11-10 1 4 5 8 11 10-1-6-4-11-11-14z" opacity=".9"/><rect x="30" y="12" width="4" height="9"/><path d="M16 37a16 16 0 0 1 32 0z"/><rect x="14" y="35" width="36" height="5" rx="2"/><path d="M19 40v7a5 5 0 0 0 5 5h2V40z"/><path d="M45 40v7a5 5 0 0 1-5 5h-2V40z"/><rect x="30" y="40" width="4" height="12" rx="1.5"/></svg>',
+  gladiator: '<svg viewBox="0 0 64 64" fill="currentColor" aria-hidden="true"><path d="M32 2c-7 4-9 9-9 14h18c0-5-2-10-9-14z" opacity=".9"/><rect x="30" y="12" width="4" height="8"/><ellipse cx="32" cy="33" rx="15" ry="15"/><path d="M13 31c10-8 28-8 38 0-10 6-28 6-38 0z"/><rect x="24" y="31" width="16" height="3.4" rx="1.7" fill="#0e0a06" opacity=".55"/><g fill="#0e0a06" opacity=".5"><circle cx="27" cy="39" r="1.4"/><circle cx="32" cy="39" r="1.4"/><circle cx="37" cy="39" r="1.4"/></g></svg>',
+  _default: '<svg viewBox="0 0 64 64" fill="currentColor" aria-hidden="true"><circle cx="32" cy="22" r="10"/><path d="M14 54a18 18 0 0 1 36 0z"/></svg>',
+};
+
 export const POWER_LABELS = {
   shield: 'Schild der Legion',
   magnet: 'Magnet-Amulett',
@@ -38,6 +45,7 @@ export class UI {
       popups: $('popups'), vignette: $('vignette'),
       menuBest: $('menu-best'), menuCoins: $('menu-coins'),
       controlsKeys: $('controls-keys'), controlsTouch: $('controls-touch'),
+      skins: $('screen-skins'), skinList: $('skin-list'), skinsCoins: $('skins-coins'),
       overScore: $('over-score'), overCoins: $('over-coins'), overBest: $('over-best'),
       overRecord: $('over-record'), overTip: $('over-tip'),
       confetti: $('confetti'),
@@ -56,6 +64,24 @@ export class UI {
     const explore = $('btn-explore');
     if (explore) explore.addEventListener('click', () => {
       document.getElementById('welt')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    // Charaktermenü / Shop
+    document.querySelectorAll('.js-skins').forEach((b) => b.addEventListener('click', () => cb.openSkins()));
+    const skinsBack = $('btn-skins-back');
+    if (skinsBack) skinsBack.addEventListener('click', () => cb.closeSkins());
+    if (this.el.skinList) this.el.skinList.addEventListener('click', (e) => {
+      const card = e.target.closest('.skin-card');
+      if (!card) return;
+      const id = card.dataset.id;
+      const btn = e.target.closest('.skin-btn');
+      if (btn) {
+        if (btn.disabled) return;
+        if (btn.dataset.act === 'buy') cb.buySkin(id);
+        else cb.equipSkin(id);
+      } else {
+        cb.previewSkin(id);
+      }
     });
 
     this.chipEls = new Map();
@@ -99,6 +125,55 @@ export class UI {
     this._show(this.el.over, true);
     this._show(this.el.hud, false);
     if (record) this.confettiBurst();
+  }
+
+  // ---------- Charaktermenü / Shop ----------
+  showSkins(state) {
+    this.renderSkins(state);
+    this._show(this.el.menu, false);
+    this._show(this.el.skins, true);
+    this._show(this.el.over, false);
+    this._show(this.el.pause, false);
+    this._show(this.el.hud, false);
+  }
+
+  /** (Neu-)Zeichnet die Skin-Karten und die Münz-Anzeige. */
+  renderSkins(state) {
+    if (this.el.skinsCoins) this.el.skinsCoins.textContent = fmt(state.coins);
+    const list = this.el.skinList;
+    if (!list) return;
+    const owned = new Set(state.owned);
+    list.innerHTML = '';
+    for (const s of state.skins) {
+      const isOwned = owned.has(s.id);
+      const isEquipped = state.equipped === s.id;
+      const isPreview = state.preview === s.id;
+
+      const card = document.createElement('div');
+      card.className = 'skin-card'
+        + (isPreview ? ' preview' : '')
+        + (isEquipped ? ' equipped' : '')
+        + (isOwned ? '' : ' locked');
+      card.dataset.id = s.id;
+
+      let action;
+      if (isEquipped) {
+        action = '<span class="skin-badge">Ausgewählt ✓</span>';
+      } else if (isOwned) {
+        action = '<button type="button" class="skin-btn skin-equip" data-act="equip">Auswählen</button>';
+      } else {
+        const afford = state.coins >= s.price;
+        action = `<button type="button" class="skin-btn skin-buy" data-act="buy"${afford ? '' : ' disabled'}>`
+          + `Kaufen <span class="coin-dot" aria-hidden="true"></span>${fmt(s.price)}</button>`;
+      }
+
+      card.innerHTML =
+        `<div class="skin-emblem">${SKIN_EMBLEMS[s.id] || SKIN_EMBLEMS._default}</div>`
+        + `<div class="skin-name">${s.name}</div>`
+        + `<div class="skin-desc">${s.desc}</div>`
+        + `<div class="skin-action">${action}</div>`;
+      list.appendChild(card);
+    }
   }
 
   // ---------- HUD ----------
