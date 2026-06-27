@@ -327,7 +327,13 @@ export class World {
       d.pool.release(d.group);
     }
     seg.userData.deco = [];
-    for (const p of seg.userData.props) seg.remove(p);
+    // Kleinteile werden bei jeder Befüllung frisch gebaut (nicht gepoolt) –
+    // darum hier ihre Geometrien freigeben, sonst lecken GPU-Buffers über die
+    // Zeit. Materialien sind geteilt (this.M.*) und bleiben erhalten.
+    for (const p of seg.userData.props) {
+      seg.remove(p);
+      p.traverse((o) => { if (o.isMesh) o.geometry.dispose(); });
+    }
     seg.userData.props = [];
     this.flames = this.flames.filter(f => f.seg !== seg);
   }

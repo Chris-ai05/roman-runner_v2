@@ -94,6 +94,7 @@ class Game {
     this.menuAngle = 0.6;
     this.timeScale = 1;
     this._tmpV = new THREE.Vector3();
+    this._tmpLook = new THREE.Vector3();
     this._fpsAcc = 0; this._fpsN = 0; this._tuned = false;
 
     this.resetRun();
@@ -241,7 +242,7 @@ class Game {
     const cx = Math.sin(this.menuAngle) * r;
     const cz = this.playerZ + Math.cos(this.menuAngle) * r;
     this.camera.position.lerp(this._tmpV.set(cx, 3.1, cz), Math.min(1, 4 * dt));
-    this.camLook.lerp(new THREE.Vector3(0, 1.3, this.playerZ), Math.min(1, 4 * dt));
+    this.camLook.lerp(this._tmpLook.set(0, 1.3, this.playerZ), Math.min(1, 4 * dt));
     this.camera.lookAt(this.camLook);
     this.setFov(58, dt);
 
@@ -366,7 +367,7 @@ class Game {
     this.camera.position.lerp(
       this._tmpV.set(this.player.x * 0.5 + sh.x, 5.2 + this.deathT * 1.4 + sh.y, this.playerZ + 8.2),
       Math.min(1, 3 * dt));
-    this.camLook.lerp(new THREE.Vector3(this.player.x, 0.8, this.playerZ), Math.min(1, 5 * dt));
+    this.camLook.lerp(this._tmpLook.set(this.player.x, 0.8, this.playerZ), Math.min(1, 5 * dt));
     this.camera.lookAt(this.camLook);
 
     if (this.deathT > 1.15) this.finishRun();
@@ -389,7 +390,7 @@ class Game {
     );
     this.camera.position.lerp(target, Math.min(1, 7 * dt));
     this.camLook.lerp(
-      new THREE.Vector3(this.player.x * 0.8, 1.4 + this.player.y * 0.3, this.playerZ - 6),
+      this._tmpLook.set(this.player.x * 0.8, 1.4 + this.player.y * 0.3, this.playerZ - 6),
       Math.min(1, 8 * dt));
     this.camera.lookAt(this.camLook);
 

@@ -71,7 +71,7 @@ export class Effects {
     const v = new THREE.Vector3();
     for (let i = 0; i < 14; i++) {
       v.set((Math.random() - 0.5) * 7, Math.random() * 5 + 2, (Math.random() - 0.5) * 5 + 2);
-      this._spawn(pos, { color, size: 0.22 + Math.random() * 0.3, life: 0.8, vel: v.clone(), gravity: 12, drag: 0.6, additive: false, opacity: 0.95 });
+      this._spawn(pos, { color, size: 0.22 + Math.random() * 0.3, life: 0.8, vel: v, gravity: 12, drag: 0.6, additive: false, opacity: 0.95 });
     }
     this.burst(pos, { count: 8, color: 0xffd9a0, speed: 5, size: 0.3, life: 0.35 });
   }

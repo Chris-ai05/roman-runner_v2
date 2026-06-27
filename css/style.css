@@ -841,4 +841,6 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   .lp-reveal { animation: none !important; opacity: 1 !important; transform: none !important; }
+  /* Animierte Hero-Szene ausblenden – der statische Verlauf des Hero bleibt */
+  .lp-hero-scene { display: none; }
 }

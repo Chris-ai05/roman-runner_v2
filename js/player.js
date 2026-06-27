@@ -64,13 +64,12 @@ export class Player {
     this.armL = new THREE.Group(); this.armR = new THREE.Group();
     this.armL.position.set(-0.42, 1.42, 0);
     this.armR.position.set(0.42, 1.42, 0);
-    for (const [grp, side] of [[this.armL, -1], [this.armR, 1]]) {
+    for (const grp of [this.armL, this.armR]) {
       const upper = box(0.16, 0.34, 0.16, M.skin); upper.position.y = -0.16;
       const lower = box(0.14, 0.3, 0.14, M.skin); lower.position.y = -0.46;
       const cuff = box(0.17, 0.08, 0.17, M.bronze); cuff.position.y = -0.3;
       grp.add(upper, lower, cuff);
       this.body.add(grp);
-      void side;
     }
 
     // Beine (Pivot an der Hüfte) – am Root, damit Rutschen sauber aussieht
