@@ -104,6 +104,7 @@ export class UI {
     this._show(this.el.menu, true);
     this._show(this.el.over, false);
     this._show(this.el.pause, false);
+    this._show(this.el.skins, false);
     this._show(this.el.hud, false);
   }
 
@@ -111,6 +112,7 @@ export class UI {
     this._show(this.el.menu, false);
     this._show(this.el.over, false);
     this._show(this.el.pause, false);
+    this._show(this.el.skins, false);
     this._show(this.el.hud, true);
   }
 
@@ -123,6 +125,7 @@ export class UI {
     this.el.overRecord.style.display = record ? '' : 'none';
     this.el.overTip.textContent = tip;
     this._show(this.el.over, true);
+    this._show(this.el.skins, false);
     this._show(this.el.hud, false);
     if (record) this.confettiBurst();
   }
